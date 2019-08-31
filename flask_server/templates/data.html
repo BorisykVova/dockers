@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Flasky{% endblock %}
+
+{% block page_content %}
+    {% for key, value in data.items()%}
+            <h3>{{ key }} - {{ value }}</h3>
+    {% endfor %}
+{% endblock %}

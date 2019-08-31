@@ -1,0 +1,65 @@
+version: '3'
+
+
+services:
+
+  postgres:
+    image: postgres:latest
+    container_name: 'postgres'
+    ports:
+      - 5432:5432
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: 'pgadmin'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: doterua66@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    depends_on:
+      - postgres
+    ports:
+      - 5050:80
+
+  redis:
+    image: redis:latest
+    container_name: 'redis'
+    depends_on:
+      - postgres
+      - pgadmin
+    ports:
+      - 6349:6349
+
+  flask_server:
+    build:
+      context: .
+      dockerfile: flask_server/Dockerfile
+    container_name: 'flask_server'
+    command: python /app/flask_server/flask_server.py
+    depends_on:
+      - redis
+#    volumes:
+#      - .:/app/flask_server/
+    ports:
+      - 4000:80
+
+  redis_listener:
+    build:
+      context: .
+      dockerfile: redis_listener/Dockerfile
+    container_name: 'redis_listener'
+    command: python /app/redis_listener/redis_listener.py
+    depends_on:
+      - flask_server
+#    volumes:
+#      - .:/app/
+
+  db_listener:
+    build:
+      context: .
+      dockerfile: db_listener/Dockerfile
+    container_name: 'db_listener'
+    command: python /app/db_listener/db_listener.py
+    depends_on:
+      - flask_server
+#    volumes:
+#      - .:
